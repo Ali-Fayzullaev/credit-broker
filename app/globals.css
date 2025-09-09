@@ -120,3 +120,7 @@
     @apply bg-background text-foreground;
   }
 }
+
+.bb {
+  border:  2px solid red;
+}

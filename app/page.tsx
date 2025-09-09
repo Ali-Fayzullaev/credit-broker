@@ -1,3 +1,4 @@
+// app/page.tsx
 export default function HomePage() {
   return (
     <section className="py-16">

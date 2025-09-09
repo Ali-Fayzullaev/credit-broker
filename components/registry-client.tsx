@@ -1,11 +1,12 @@
 "use client";
 import * as React from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import Papa from "papaparse";
+import Papa, { ParseResult, ParseError } from "papaparse";
 import { brokersMock, Broker } from "@/lib/brokers";
 import { brokerColumns } from "@/components/registry/columns";
 import { DataTable } from "@/components/registry/table";
 
+// --- helpers ---
 function useDebounced<T>(value: T, delay = 350) {
   const [v, setV] = React.useState(value);
   React.useEffect(() => {
@@ -14,6 +15,17 @@ function useDebounced<T>(value: T, delay = 350) {
   }, [value, delay]);
   return v;
 }
+
+const toIso = (v: unknown): string => {
+  if (!v) return new Date().toISOString();
+  const d = new Date(String(v));
+  return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+};
+
+const normalizeStatus = (s: unknown): Broker["status"] => {
+  const v = String(s ?? "").toUpperCase();
+  return v === "ACTIVE" || v === "EXPIRING_SOON" || v === "EXPIRED" ? (v as Broker["status"]) : "ACTIVE";
+};
 
 export function RegistryClient() {
   const router = useRouter();
@@ -28,36 +40,31 @@ export function RegistryClient() {
   const [query, setQuery] = React.useState<string>(initialQuery);
   const [statusFilter, setStatusFilter] = React.useState<string>(initialStatus);
 
-  // 2) дебаунс для query (чтоб не спамить URL)
+  // 2) дебаунс для query
   const q = useDebounced(query);
 
-  // 3) записываем текущие фильтры в URL (replace, без перезагрузки)
+  // 3) пишем фильтры в URL
   React.useEffect(() => {
     const sp = new URLSearchParams(Array.from(params.entries())); // сохраняем прочие параметры
-    // query
-    if (q) sp.set("query", q);
-    else sp.delete("query");
-    // status
-    if (statusFilter) sp.set("status", statusFilter);
-    else sp.delete("status");
-
+    if (q) sp.set("query", q); else sp.delete("query");
+    if (statusFilter) sp.set("status", statusFilter); else sp.delete("status");
     const search = sp.toString();
     router.replace(search ? `${pathname}?${search}` : pathname);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, statusFilter]); // завязка только на наши фильтры
+  }, [q, statusFilter]);
 
-  // 4) когда URL меняется извне (напр. по истории/ссылке), подхватываем значения
+  // 4) если URL меняется извне — синхронизируемся
   React.useEffect(() => {
     const uQuery = params.get("query") ?? "";
     const uStatus = params.get("status") ?? "";
     if (uQuery !== query) setQuery(uQuery);
     if (uStatus !== statusFilter) setStatusFilter(uStatus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params]); // слушаем параметры URL
+  }, [params]);
 
-  const data = React.useMemo(() => {
+  const data = React.useMemo<Broker[]>(() => {
     const ql = q.trim().toLowerCase();
-    return rows.filter((b) => {
+    return rows.filter((b: Broker) => {
       const hit =
         !ql ||
         b.fullName.toLowerCase().includes(ql) ||
@@ -70,7 +77,7 @@ export function RegistryClient() {
 
   const exportCsv = () => {
     const csv = Papa.unparse(
-      data.map(({ id, ...rest }) => rest),
+      data.map(({ id, ...rest }: Broker) => rest),
       { delimiter: ";" }
     );
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -82,13 +89,43 @@ export function RegistryClient() {
     a.href = url;
     a.download = `brokers${suffix}.csv`;
     a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  };
+
+  const importCsv = (file: File) => {
+    Papa.parse<Partial<Broker>>(file, {
+      header: true,
+      delimiter: ";",
+      skipEmptyLines: true,
+      complete: (res: ParseResult<Partial<Broker>>) => {
+        const cleaned: Broker[] = res.data
+          .map((r: Partial<Broker>, i: number): Broker => ({
+            id: `imp-${Date.now()}-${i}`,
+            fullName: (r.fullName ?? "").toString().trim(),
+            city: (r.city ?? "").toString().trim(),
+            certificateNo: (r.certificateNo ?? "").toString().trim(),
+            issuedAt: toIso(r.issuedAt),
+            expiresAt: toIso(r.expiresAt),
+            organization: r.organization?.toString().trim() || undefined,
+            email: r.email?.toString().trim() || undefined,
+            phone: r.phone?.toString().trim() || undefined,
+            status: normalizeStatus(r.status),
+            certificateUrl: r.certificateUrl?.toString().trim() || undefined,
+          }))
+          .filter((b: Broker) => b.fullName !== "" && b.certificateNo !== "");
+        if (cleaned.length) setRows((prev: Broker[]) => [...cleaned, ...prev]);
+      },
+      // error: (err: ParseError) => {
+      //   console.error("CSV parse error:", err);
+      //   alert("Не удалось импортировать CSV");
+      // },
+    });
   };
 
   const resetFilters = () => {
     setQuery("");
     setStatusFilter("");
-    router.replace(pathname); // чистый URL без параметров
+    router.replace(pathname);
   };
 
   return (
@@ -100,38 +137,26 @@ export function RegistryClient() {
         </div>
 
         <div className="flex gap-2">
-          <button className="px-3 py-2 border rounded" onClick={exportCsv}>Экспорт CSV</button>
+          <button className="px-3 py-2 border rounded" onClick={exportCsv}>
+            Экспорт CSV
+          </button>
           <label className="px-3 py-2 border rounded cursor-pointer">
             Импорт CSV
-            <input type="file" accept=".csv" onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-              Papa.parse<Partial<Broker>>(file, {
-                header: true, delimiter: ";", skipEmptyLines: true,
-                complete: (res) => {
-                  const cleaned: Broker[] = res.data
-                    .map((r, i) => ({
-                      id: `imp-${Date.now()}-${i}`,
-                      fullName: (r.fullName ?? "").toString().trim(),
-                      city: (r.city ?? "").toString().trim(),
-                      certificateNo: (r.certificateNo ?? "").toString().trim(),
-                      issuedAt: r.issuedAt ? new Date(r.issuedAt).toISOString() : new Date().toISOString(),
-                      expiresAt: r.expiresAt ? new Date(r.expiresAt).toISOString() : new Date().toISOString(),
-                      organization: r.organization?.toString().trim() || undefined,
-                      email: r.email?.toString().trim() || undefined,
-                      phone: r.phone?.toString().trim() || undefined,
-                      status: (r.status as Broker["status"]) || "ACTIVE",
-                      certificateUrl: r.certificateUrl?.toString().trim() || undefined,
-                    }))
-                    .filter((b) => b.fullName && b.certificateNo);
-                  if (cleaned.length) setRows((prev) => [...cleaned, ...prev]);
-                  e.target.value = "";
-                },
-                error: () => alert("Не удалось импортировать CSV"),
-              });
-            }} className="hidden" />
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                importCsv(file);
+                e.target.value = ""; // сброс инпута
+              }}
+              className="hidden"
+            />
           </label>
-          <button className="px-3 py-2 border rounded" onClick={resetFilters}>Сбросить</button>
+          <button className="px-3 py-2 border rounded" onClick={resetFilters}>
+            Сбросить
+          </button>
         </div>
       </div>
 
