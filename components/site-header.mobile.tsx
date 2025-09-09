@@ -21,7 +21,7 @@ export function MobileNav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="md:hidden flex items-center gap-2">
+    <div className="lg:hidden flex items-center gap-2">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" aria-label="Открыть меню">
