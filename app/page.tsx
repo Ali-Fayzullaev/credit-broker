@@ -1,12 +1,10 @@
-// app/[locale]/page.tsx
-"use client";
-import { useTranslations } from "next-intl";
-
 export default function HomePage() {
-  const t = useTranslations();
   return (
-    <main className="flex flex-col items-center justify-center min-h-[60vh]">
-      <h1 className="text-3xl font-bold">{t("home.title")}</h1>
-    </main>
+    <section className="py-16">
+      <h1 className="text-3xl font-bold mb-4">Казахстанская Ассоциация Кредитных Брокеров</h1>
+      <p className="text-muted-foreground">
+        Добро пожаловать! Здесь будет главная страница (герой, CTA «Вступить», новости и т.д.).
+      </p>
+    </section>
   );
 }

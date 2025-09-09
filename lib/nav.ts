@@ -1,13 +1,13 @@
 export const navItems = [
-  { href: "", key: "nav.home" },
-  { href: "about", key: "nav.about" },
-  { href: "membership", key: "nav.membership" },
-  { href: "news", key: "nav.news" },
-  { href: "partners", key: "nav.partners" },
-  { href: "legal", key: "nav.legal" },
-  { href: "blog", key: "nav.blog" },
-  { href: "leads", key: "nav.leads" },
-  { href: "contacts", key: "nav.contacts" },
-  { href: "cabinet", key: "nav.cabinet" },
-  { href: "registry", key: "nav.registry" }
+  { href: "/", label: "Главная" },
+  { href: "/about", label: "Об Ассоциации" },
+  { href: "/membership", label: "Членство" },
+  { href: "/news", label: "Новости" },
+  { href: "/partners", label: "Партнёры" },
+  { href: "/legal", label: "Юридическая база" },
+  { href: "/blog", label: "Блог / Аналитика" },
+  { href: "/leads", label: "Купить лиды" },
+  { href: "/contacts", label: "Контакты" },
+  { href: "/cabinet", label: "Личный кабинет" },
+  { href: "/registry", label: "Реестр брокеров" }
 ];
