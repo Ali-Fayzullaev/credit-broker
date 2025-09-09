@@ -1,3 +1,4 @@
+//lib/news.ts
 export type NewsItem = {
   id: string;
   title: string;
