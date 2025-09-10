@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Target, ShieldCheck, Handshake, BookOpen, Scale, Users2, Award, ArrowRight, CalendarDays, Building2 } from "lucide-react";
+import { timeline, values } from "@/lib/about";
 
 export const metadata: Metadata = {
   title: "О нас — КАКБ",
@@ -52,22 +53,11 @@ const features = [
   },
 ];
 
-const values = [
-  { label: "Профессионализм", desc: "Компетентность и ответственность при работе с клиентами и партнёрами." },
-  { label: "Этика", desc: "Добросовестность, конфиденциальность и отсутствие конфликта интересов." },
-  { label: "Открытость", desc: "Диалог с рынком и государством на основе фактов и данных." },
-  { label: "Инновации", desc: "Технологичные подходы к скорингу, онбордингу и клиентскому опыту." },
-];
 
-const timeline: { date: string; title: string; text: string }[] = [
-  { date: "2025-01-15T00:00:00.000Z", title: "Инициативная группа", text: "Формирование рабочей группы брокеров и экспертов." },
-  { date: "2025-04-05T00:00:00.000Z", title: "Стандарты и кодекс", text: "Подготовлен проект стандартов и этического кодекса." },
-  { date: "2025-09-01T00:00:00.000Z", title: "Публичный реестр", text: "Запущен открытый реестр сертифицированных брокеров." },
-];
 
 export default function AboutPage() {
   return (
-    <section className="space-y-10">
+    <section className="space-y-10 ">
       {/* Hero */}
       <div className="relative overflow-hidden rounded-3xl border bg-gradient-to-b from-blue-50 to-white">
         <div className="absolute inset-0 [mask-image:radial-gradient(50%_60%_at_50%_0%,#000_30%,transparent_70%)] pointer-events-none">
