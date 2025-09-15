@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, CreditCard, Home, Car, Handshake, CheckCircle2, Send, ArrowRight } from "lucide-react";
+import { ShieldCheck, CreditCard, Home, Car, Handshake, Send, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Купить лиды — КАКБ",

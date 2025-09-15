@@ -49,11 +49,6 @@ function formatDate(iso: string) {
   }
 }
 
-function daysLeft(iso: string) {
-  const end = new Date(iso).getTime();
-  const now = Date.now();
-  return Math.ceil((end - now) / (1000 * 60 * 60 * 24));
-}
 
 const total = brokersMock.length;
 const active = brokersMock.filter((b) => b.status === "ACTIVE").length;
