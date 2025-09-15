@@ -1,3 +1,6 @@
+// ===============================
+// components/site-header.desktop.tsx
+// ===============================
 "use client";
 
 import Link from "next/link";
@@ -6,23 +9,25 @@ import { Button } from "@/components/ui/button";
 import { navItems } from "@/lib/nav";
 import clsx from "clsx";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 export function DesktopNav() {
   const pathname = usePathname();
 
   const primary = navItems
-    .filter(i => i.desktop)
+    .filter((i) => i.desktop)
     .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
 
-  const more = navItems.filter(i => !i.desktop);
+  const more = navItems.filter((i) => !i.desktop);
 
   return (
-    <nav className="hidden md:flex items-center gap-3" aria-label="Главная навигация">
+    <nav className="hidden md:flex items-center gap-2 xl:gap-3" aria-label="Главная навигация">
       {primary.map((item) => {
-        const active =
-          pathname === item.href || pathname.startsWith(item.href + "/");
+        const active = pathname === item.href || pathname.startsWith(item.href + "/");
         return (
           <Link
             key={item.href}
@@ -53,7 +58,7 @@ export function DesktopNav() {
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="h-10 rounded-xl">Ещё</Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="min-w-56 p-1">
             {more.map((m) => (
               <DropdownMenuItem key={m.href} asChild>
                 <Link href={m.href}>{m.short ?? m.label}</Link>

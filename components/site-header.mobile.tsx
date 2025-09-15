@@ -1,10 +1,12 @@
+// ===============================
 // components/site-header.mobile.tsx
+// ===============================
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -12,6 +14,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetClose,
 } from "@/components/ui/sheet";
 import { navItems } from "@/lib/nav";
 import clsx from "clsx";
@@ -28,11 +31,20 @@ export function MobileNav() {
             <Menu />
           </Button>
         </SheetTrigger>
-        <SheetContent side="right" className="w-80">
-          <SheetHeader>
-            <SheetTitle>Меню</SheetTitle>
-          </SheetHeader>
-          <nav className="flex flex-col gap-1 mt-4" aria-label="Главная навигация">
+        {/* Широкий, комфортный лист с собственным хедером и фикс-CTA снизу */}
+        <SheetContent side="right" className="w-full max-w-[360px] sm:max-w-[420px] p-0">
+          <div className="border-b bg-gradient-to-b from-blue-50 to-white px-4 py-4 flex items-center justify-between">
+            <SheetHeader className="p-0 m-0">
+              <SheetTitle className="text-base">Меню</SheetTitle>
+            </SheetHeader>
+            <SheetClose asChild>
+              <Button variant="ghost" size="icon" aria-label="Закрыть">
+                <X />
+              </Button>
+            </SheetClose>
+          </div>
+
+          <nav className="px-2 py-2" aria-label="Главная навигация">
             {navItems.map((item) => {
               const active = pathname === item.href || pathname.startsWith(item.href + "/");
               return (
@@ -43,20 +55,28 @@ export function MobileNav() {
                   onClick={() => setOpen(false)}
                   aria-current={active ? "page" : undefined}
                   className={clsx(
-                    "px-3 py-2 rounded-lg transition-colors hover:bg-blue-50",
-                    active && "text-blue-700 font-medium"
+                    "block rounded-xl px-3 py-3 text-[15px] transition-colors",
+                    active
+                      ? "bg-blue-50 text-blue-700 font-medium"
+                      : "hover:bg-blue-50"
                   )}
                 >
                   {item.label}
                 </Link>
               );
             })}
-            <Button onClick={() => setOpen(false)} className="mt-2 bg-blue-600 hover:bg-blue-700">
-              Вступить
-            </Button>
           </nav>
+
+          <div className="sticky bottom-0 inset-x-0 border-t bg-white/90 backdrop-blur px-3 py-3 pb-[max(env(safe-area-inset-bottom),12px)]">
+            <Button asChild className="w-full bg-blue-600 hover:bg-blue-700">
+              <Link href="/membership" onClick={() => setOpen(false)}>
+                Вступить <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
         </SheetContent>
       </Sheet>
     </div>
   );
 }
+
