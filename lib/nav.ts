@@ -9,7 +9,7 @@ export type NavItem = {
 
 export const navItems: NavItem[] = [
   // { href: "/", label: "Главная", desktop: false }, // логотип = главная
-  { href: "/registry",   label: "Реестр брокеров", short: "Реестр",     desktop: true,  order: 10 },
+  { href: "/registry",   label: "Реестр брокеров", short: "Реестр брокеров",     desktop: true,  order: 10 },
   { href: "/news",       label: "Новости",                             desktop: true,  order: 20 },
   { href: "/partners",   label: "Партнёры",                            desktop: true,  order: 30 },
   { href: "/blog",       label: "Аналитика",                           desktop: true,  order: 40 },

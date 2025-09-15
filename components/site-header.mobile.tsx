@@ -39,7 +39,6 @@ export function MobileNav() {
             </SheetHeader>
             <SheetClose asChild>
               <Button variant="ghost" size="icon" aria-label="Закрыть">
-                <X />
               </Button>
             </SheetClose>
           </div>
